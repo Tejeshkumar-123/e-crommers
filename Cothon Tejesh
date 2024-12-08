@@ -1,0 +1,149 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="app-version" content="${COMMIT_HASH}"><meta name="robots" content="noindex"><meta name="_csrf" content="4yylQtxT-OQYrCo-sEK-AXp3pSeny-r316GM"><meta name="hostedSubdomain" content="webflow.io"><link rel="manifest" type="application/manifest+json" href="/manifest.json"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#3490eb"><link rel="stylesheet" type="text/css" href="https://d3e54v103j8qbb.cloudfront.net/gen/css/webflow-designer.bdcac682f4d60a990197.css"><script type="text/javascript" id="perimeterx-script">(function () {
+  function getCookieValue(name) {
+    var cookies = '; ' + document.cookie;
+    //var parts = cookies.split(`; ${name}=`);
+    var parts = cookies.split('; ' + name + '=');
+    if (parts.length <= 1) {
+      return;
+    }
+    var val = parts.pop().split(';').shift();
+    try {
+      return val;
+    } catch (e) {
+    }
+  }
+  
+  // Custom parameters
+  window._pxParam1 = getCookieValue('wf_user');
+  var p = document.getElementsByTagName('script')[0],
+  s = document.createElement('script');
+  s.async = 1;
+  s.src = '/TG2vkiqj/init.js';
+  p.parentNode.insertBefore(s, p);
+}());</script><title>Webflow - E-Commerce Website with Real-Time Features</title><link rel="icon" href="https://d3e54v103j8qbb.cloudfront.net/static/favicon_designer.88fce7c7f8.png"><script>//- attributes == {apiKey: "", source: "", hostUrl: "", authenticated: true/false}
+var source = 'designer';
+var hostUrl = 'https://webflow.com';
+var authenticated = Boolean();
+
+var forceFalse = false;
+// When ipstack is not loaded window.wf_continentCode is undefined and
+// segment consent manager doesn't require consent. We assume consent for
+// authenticated users
+switch (source) {
+  case 'dashboard':
+    // If in iframe we don't want consent banner to pop up so we don't load ipstack,
+    // but we also use parent window consent manager settings for analytics
+    if (!authenticated) {
+      initCallbacks();
+      loadIpStack();
+    }
+    break;
+  case 'designer-preview':
+    // When loading preview.webflow.com/... we don't know if a user is
+    // authenticated or not so we need to call this extra endpoint
+    initCallbacks();
+    isAuthenticated(function(authenticated) {
+      if (!authenticated) {
+        loadIpStack();
+      } else {
+        // Needed to resolve wf_isEU
+        forceFalse = true;
+      }
+    });
+    break;
+  // Default: do nothing
+  // Users in Designer are always authenticated so we don't need to detect
+  // EU continent because we assume consent
+}
+
+function initCallbacks() {
+  // ipstack docs: https://ipstack.com/documentation
+  window.wf_onDetectContinent = function(ipstackResponseJson) {
+    window.wf_continentCode = ipstackResponseJson.continent_code; 
+    window.wf_userLocation = {
+      country_code: ipstackResponseJson.country_code,
+      city: ipstackResponseJson.city
+    }
+  };
+
+  window.wf_isEU = function() {
+    // In order to be GDPR-compliant, we want to treat users from unidentified continent
+    // as if they were from EU and in result – show them cookie consent manager
+    // instead of assuming the consent was given:
+    var fallbackValue = true;
+    
+    if (forceFalse) {
+      return false;
+    }
+    if (typeof window.wf_continentCode === 'string') {
+      return window.wf_continentCode === 'EU';
+    }
+    if (typeof Promise === 'undefined') {
+      return fallbackValue;
+    }
+    
+    // There could be a race condition and wf_continentCode be undefined
+    return new Promise(function(resolve) {
+      var i = 0;
+      var interval = setInterval(function() {
+        // Resolve it if:
+        // - ipstack has loaded and window.wf_continentCode is defined
+        // - 5 seconds passed and wf_continentCode is still undefined
+        // - forceFalse is true (used in preview sites when user is authenticated)
+        if (forceFalse) {
+          clearInterval(interval);
+          return resolve(false);
+        }
+        if (i++ >= 50) {
+          clearInterval(interval);
+          return resolve(fallbackValue);
+        }
+        if (typeof window.wf_continentCode === 'string') {
+          clearInterval(interval);
+          return resolve(window.wf_continentCode === 'EU');
+        }
+      }, 100);
+    });
+  };
+}
+
+function loadIpStack() {
+  var head = document.getElementsByTagName("head")[0];
+  var ipstackScript = document.createElement("script");
+  ipstackScript.src = "https://api.ipstack.com/check?access_key=53038fede8e664ed0b2e5274047e23a8&fields=continent_code,country_code,city&callback=wf_onDetectContinent";
+  head.appendChild(ipstackScript);
+}
+
+function isAuthenticated(cb) {
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("GET", hostUrl + '/api/user/readOnlyData');
+  xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  xmlhttp.withCredentials = true;
+  xmlhttp.onload = function() {
+    if (xmlhttp.status === 200) {
+      cb(true);
+    } else {
+      cb(false);
+    }
+  };
+  xmlhttp.send();
+}</script><script type="text/javascript">!function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){var t=Array.prototype.slice.call(arguments);t.unshift(e);analytics.push(t);return analytics}};for(var e=0;e<analytics.methods.length;e++){var key=analytics.methods[e];analytics[key]=analytics.factory(key)}analytics.load=function(key,e){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://analytics.webflow.com/analytics.js/v1/" + key + "/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=e};analytics._writeKey="f28KeHZ0I4kQbVZw6U8fqkBHQ5PyOMs0";analytics._cdn="https://analytics.webflow.com";;analytics.SNIPPET_VERSION="4.15.3";
+//- Purposefully doesn't include 'analytics.load(API_TOKEN)' here, as this is deferred to segment-consent-manager
+analytics.page();
+}}();</script><script type="text/javascript">Object.defineProperty(window, 'wfenvironment', {
+  value: Object.freeze({
+    APP_ENV: "production",
+    designerCanvasCss: "https://d3e54v103j8qbb.cloudfront.net/gen/css/designer-canvas.fc0aea3ad8c49fd61133.css",
+    WEBFLOW_DEFAULT_HOST: "https://webflow.com",
+  }),
+  writable: false,
+  enumerable: false
+});
+</script></head><body class="wf-control"><div id="preloader"><div class="loader-wrapper"><svg width="1080" height="674" viewBox="0 0 1080 674" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo"><path fill-rule="evenodd" clip-rule="evenodd" d="M1080 0L735.386 673.684H411.695L555.916 394.481H549.445C430.464 548.934 252.942 650.61 -0.000366211 673.684V398.344C-0.000366211 398.344 161.813 388.787 256.938 288.776H-0.000366211V0.0053214H288.771V237.515L295.252 237.489L413.254 0.0053214H631.645V236.009L638.126 235.999L760.556 0H1080Z" fill="white"></path></svg><div class="overlay"></div><div class="shapes-overlay"></div><div class="bar"><div class="clipper"><div class="clipped-light"></div></div><div class="shapes-group"><svg width="100%" height="100%" viewBox="0 0 640 446" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;" class="cast-blur"><g id="Artboard1" transform="matrix(0.687089,0,0,0.75508,-695.831,558.042)"><rect x="1012.72" y="-739.051" width="931.263" height="590.584" style="fill:none;"></rect><g id="cast-blur" serif:id="cast blur" transform="matrix(2.34977e-16,-3.49193,2.58578,1.44076e-16,-1540.19,4648.89)"><path style="fill:rgb(0,100,255);" d="M1458.34,1040.74L1491.73,1202.75C1485.21,1195.23 1467.63,1184.21 1458.34,1183.32C1451.92,1183.48 1434.02,1192.4 1425.08,1203.15L1458.34,1040.74Z"></path></g></g></svg><svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 640 446" xmlns="http://www.w3.org/2000/svg" class="shadow"><g transform="matrix(.687089 0 0 .75508 -695.831 558.042)"><path d="m1012.72-739.051h931.263v590.584h-931.263" fill="none"></path><path d="m1269.48 1088.74 182.69 221.74h-365.39" transform="matrix(0 -1.32436 1.45542 0 -53.1962 1237.49)"></path></g></svg><svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 640 446" xmlns="http://www.w3.org/2000/svg" class="bar-glow"><g transform="matrix(.687089 0 0 .75508 -695.831 558.042)"><path d="m1012.72-739.051h931.263v590.584h-931.263" fill="none"></path><path d="m1458.34 1040.74c16.09 52.59 24.86 105.12 22.72 157.58h-45.43c-.5-54.12 6.76-106.71 22.71-157.58" fill="#000eff" transform="matrix(0 -.202703 1.77038 0 -593.442 -148.149)"></path></g></svg><svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 640 446" xmlns="http://www.w3.org/2000/svg" class="mid-glow"><g transform="matrix(.687089 0 0 .75508 -695.831 558.042)"><path d="m1012.72-739.051h931.263v590.584h-931.263" fill="none"></path><path d="m1269.48 1088.74 182.69 221.74h-365.39" transform="matrix(0 -1.32436 1.45542 0 -53.1962 1237.49)"></path></g></svg><svg width="100%" height="100%" viewBox="0 0 640 446" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;" class="top-glow-3"><g id="Artboard1" transform="matrix(0.687089,0,0,0.75508,-695.831,558.042)"><rect x="1012.72" y="-739.051" width="931.263" height="590.584" style="fill:none;"></rect><g id="top-glow-2" serif:id="top glow 2" transform="matrix(1.36402e-17,-0.202703,1.45542,8.10939e-17,-216.009,-148.149)"><path style="fill:url(#_Linear1);" d="M1458.34,1040.74C1474.43,1093.33 1483.2,1145.86 1481.06,1198.32L1435.63,1198.32C1435.13,1144.2 1442.39,1091.61 1458.34,1040.74Z"></path></g></g><defs><linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.12804e-14,151.347,-184.223,9.26731e-15,1460.62,1046.97)"><stop offset="0" style="stop-color:rgb(49,144,255);stop-opacity:0"></stop><stop offset="1" style="stop-color:rgb(0,255,255);stop-opacity:1"></stop></linearGradient></defs></svg><svg width="100%" height="100%" viewBox="0 0 640 446" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;" class="top-glow-2"><g id="Artboard1" transform="matrix(0.687089,0,0,0.75508,-695.831,558.042)"><rect x="1012.72" y="-739.051" width="931.263" height="590.584" style="fill:none;"></rect><g id="top-glow-2" serif:id="top glow 2" transform="matrix(1.36402e-17,-0.202703,1.45542,8.10939e-17,-216.009,-148.149)"><path style="fill:url(#_Linear1);" d="M1458.34,1040.74C1474.43,1093.33 1483.2,1145.86 1481.06,1198.32L1435.63,1198.32C1435.13,1144.2 1442.39,1091.61 1458.34,1040.74Z"></path></g></g><defs><linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.12804e-14,151.347,-184.223,9.26731e-15,1460.62,1046.97)"><stop offset="0" style="stop-color:rgb(49,144,255);stop-opacity:0"></stop><stop offset="1" style="stop-color:rgb(0,255,255);stop-opacity:1"></stop></linearGradient></defs></svg><svg width="100%" height="100%" viewBox="0 0 640 446" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;" class="top-glow-1"><g id="Artboard1" transform="matrix(0.687089,0,0,0.75508,-695.831,558.042)"><rect x="1012.72" y="-739.051" width="931.263" height="590.584" style="fill:none;"></rect><g id="top-glow-1" serif:id="top glow 1" transform="matrix(1.36402e-17,-0.202703,2.69976,1.50427e-16,-1707.14,-148.149)"><path style="fill:url(#_Linear1);" d="M1458.34,1040.74C1474.43,1093.33 1483.2,1145.86 1481.06,1198.32L1435.63,1198.32C1435.13,1144.2 1442.39,1091.61 1458.34,1040.74Z"></path></g></g><defs><linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.12804e-14,151.347,-184.223,9.26731e-15,1460.62,1046.97)"><stop offset="0" style="stop-color:rgb(49,144,255);stop-opacity:0"></stop><stop offset="1" style="stop-color:rgb(0,255,255);stop-opacity:1"></stop></linearGradient></defs></svg></div></div></div></div><script type="text/javascript">window.performance && typeof performance.mark === 'function' &&
+  performance.mark('start js:execute-preloader');
+</script><script type="text/javascript">var Preloader=function(doc,s,PRELOADER){var wrapperDiv=doc[s](PRELOADER);function update(phase){const shapesGroup=wrapperDiv.getElementsByClassName("shapes-group")[0];if(!shapesGroup)return;const clippedLight=wrapperDiv.getElementsByClassName("clipped-light")[0];if(!clippedLight)return;shapesGroup.classList.add(`shapes-phase-${phase}`);clippedLight.classList.add(`clipped-light-${phase}`)}function destroy(){if(wrapperDiv){const transitionTime=600;wrapperDiv.style.transition=`opacity ${transitionTime}ms ease-out`;wrapperDiv.style.opacity="0";setTimeout((function(){const div=wrapperDiv;div.classList.add("hidden");setTimeout((function(){if(div.parentNode){div.parentNode.removeChild(div)}wrapperDiv=null}),transitionTime*5)}),transitionTime)}}return{update:update,destroy:destroy}}(document,"getElementById","preloader");</script><script type="text/javascript">window.performance && typeof performance.mark === 'function' &&
+  performance.mark('end js:execute-preloader');
+</script><div id="workspace" style="height: 100%"></div><div id="debug-overlay"></div><iframe id="responsive-images-iframe" src="/site/empty.html"></iframe><div id="designer-app-react-mount"></div><div id="preload-assets"></div><div id="drag-ghost"></div><div id="wf-eyedropper-button"></div><script type="text/javascript">if (typeof Preloader !== 'undefined') Preloader.update(1);
+</script><script type="text/javascript">window.performance && typeof performance.mark === 'function' &&
+  performance.mark('start js:execute-app');
+</script><script type="text/plain" id="wf-initial-data">{&quot;persistentUIState&quot;:{&quot;canvasUISettings&quot;:{&quot;canvasBarPosition&quot;:&quot;bottom&quot;},&quot;embedEditorSettingsLineWrapping&quot;:false,&quot;permanentlyDismissedNotifications&quot;:[&quot;CHECKLIST_DISMISSED&quot;,&quot;GRID_LEARN_MORE&quot;],&quot;permanentlyDismissedNotes&quot;:[&quot;MARKETPLACE_APPS_CALL_OUT&quot;,&quot;DESIGN_ASSISTANT-FTU&quot;,&quot;FTU_BUILD_WORKFLOWS_IN_WEBFLOW&quot;],&quot;appearanceSettingsSelectedOption&quot;:&quot;darkDefault&quot;,&quot;auditResultsIgnored&quot;:[],&quot;auditResultsRead&quot;:[],&quot;dockedPanelSettings&quot;:{&quot;navigatorShowing&quot;:false,&quot;navigatorDocked&quot;:true,&quot;navigatorWidth&quot;:172},&quot;logFluxActionsOption&quot;:&quot;disabled&quot;,&quot;logTelemetryOption&quot;:&quot;disabled&quot;,&quot;addTabVisibilityStates&quot;:{},&quot;pageExpandedFolders&quot;:[&quot;675596376b2f0e11a1ed1046&quot;,&quot;6755972e58b8db2a61427476&quot;,&quot;675595f36a09d65d0bfc6b86&quot;],&quot;enabledProjectCardDashboardV1&quot;:false,&quot;enableWSCheckoutAnnualDiscount&quot;:true,&quot;purchasedSitePlan&quot;:false,&quot;hasCreatedFirstSite&quot;:false,&quot;hasInstalledFirstLibrary&quot;:false,&quot;numDesignerVisit&quot;:5,&quot;numSiteVisit&quot;:4,&quot;tutorials&quot;:[{&quot;activeTutorial&quot;:&quot;__contextual_tutorial__classes&quot;,&quot;stepsCompleted&quot;:[],&quot;currentStepId&quot;:null,&quot;resumedCount&quot;:0,&quot;status&quot;:&quot;dismissed&quot;,&quot;sites&quot;:[&quot;675433480fd2f454e6b4da89&quot;]},{&quot;activeTutorial&quot;:&quot;__contextual_tutorial__grid-nine-box&quot;,&quot;stepsCompleted&quot;:[],&quot;currentStepId&quot;:null,&quot;resumedCount&quot;:0,&quot;status&quot;:&quot;dismissed&quot;,&quot;sites&quot;:[&quot;675433480fd2f454e6b4da89&quot;]},{&quot;activeTutorial&quot;:&quot;__contextual_tutorial__add-locales-checklist&quot;,&quot;stepsCompleted&quot;:[],&quot;currentStepId&quot;:null,&quot;resumedCount&quot;:0,&quot;status&quot;:&quot;dismissed&quot;,&quot;sites&quot;:[&quot;675433480fd2f454e6b4da89&quot;]},{&quot;activeTutorial&quot;:&quot;__contextual_tutorial___experimental_quick_stack&quot;,&quot;stepsCompleted&quot;:[],&quot;currentStepId&quot;:null,&quot;resumedCount&quot;:0,&quot;status&quot;:&quot;dismissed&quot;,&quot;sites&quot;:[&quot;675433480fd2f454e6b4da89&quot;]}],&quot;hasDismissedMergeCellWarning&quot;:false,&quot;startDeleteCmsTutorialOnLoad&quot;:false,&quot;hasSeenListViewIntro&quot;:true},&quot;activeTime&quot;:3443,&quot;userId&quot;:&quot;67543269af944c74778a7cc7&quot;,&quot;userMeta&quot;:{&quot;last project created&quot;:&quot;2024-12-07T11:39:45.877Z&quot;,&quot;onboarding questionnaire version&quot;:&quot;April-2023&quot;,&quot;siteBuild&quot;:&quot;other&quot;,&quot;buildingFor&quot;:null,&quot;buildingForList&quot;:[&quot;self&quot;],&quot;workplace&quot;:null,&quot;isStudent&quot;:&quot;yes&quot;,&quot;hireExpert&quot;:null,&quot;submissionDate&quot;:&quot;2024-12-07T11:34:52.196Z&quot;,&quot;last open designer&quot;:&quot;2024-12-08T14:50:01.972Z&quot;,&quot;last published site&quot;:&quot;2024-12-08T12:44:33.367Z&quot;,&quot;last export open&quot;:&quot;2024-12-08T14:50:19.908Z&quot;},&quot;experimentAssignments&quot;:[{&quot;experiment&quot;:&quot;growth_core_designer_changes_2022_01&quot;,&quot;variant&quot;:&quot;control&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:1,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_quick_add_blank_layout_2022_09&quot;,&quot;variant&quot;:&quot;control&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:1,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_designer_painted_door_2022_09&quot;,&quot;variant&quot;:&quot;control&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:0.15,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_nux_after_project_creation_2022_11&quot;,&quot;variant&quot;:&quot;control&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:1,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_video_player_2022_10&quot;,&quot;variant&quot;:&quot;v1&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:1,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_blank_versus_template_checklist_2022_10&quot;,&quot;variant&quot;:&quot;v1&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:1,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_quick_add_with_libraries_2022_11&quot;,&quot;variant&quot;:&quot;control&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:1,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_quick_add_with_libraries_2023_01&quot;,&quot;variant&quot;:&quot;control&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:1,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_connect_businesses_with_experts_in_designer_2023_01&quot;,&quot;variant&quot;:&quot;control&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:0.1,&quot;status&quot;:200},{&quot;experiment&quot;:&quot;activation_connect_businesses_with_experts_in_designer_v2_2023_01&quot;,&quot;variant&quot;:&quot;control&quot;,&quot;inRollout&quot;:false,&quot;rollout&quot;:0.25,&quot;status&quot;:200},{&quot;experiment&q
